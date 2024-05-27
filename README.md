@@ -1,3 +1,8 @@
+## Setup 
+- Put your MMLU data folder in `/mmlu/data`
+- (Optional) Create a virtual env (`python -m venv myenv` , `source myenv/bin/activate`)
+- Run the `gen_mmlu.py` first, and then look what the JSON that's generated is called and use that within `eval_mmlu.py`
+
 # Improving Factuality and Reasoning in Language Models through Multiagent Debate
 
 ### [Project Page](https://composable-models.github.io/llm_debate/) | [Paper](https://arxiv.org/abs/2305.14325) 
