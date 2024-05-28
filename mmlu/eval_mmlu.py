@@ -13,6 +13,10 @@ def solve_math_problems(input_str):
 
     return None
 
+def number_to_letter(number):
+    # Assuming 'A' corresponds to 1, 'B' to 2, etc.
+    return chr(ord('A') + number - 1)
+
 def parse_answer(input_str):
     pattern = r'\((\w)\)'
     matches = re.findall(pattern, input_str)
@@ -40,6 +44,12 @@ def compute_accuracy(gt, pred_solutions):
 
             if pred_answer is None:
                 pred_answer = solve_math_problems(pred_solution)
+                if pred_answer is not None:
+                    # Convert number to letter if necessary
+                    try:
+                        pred_answer = number_to_letter(int(pred_answer))
+                    except ValueError:
+                        pass  # Handle or log the error as appropriate
 
             if pred_answer is not None:
                 pred_answers.append(pred_answer)
@@ -52,6 +62,12 @@ def compute_accuracy(gt, pred_solutions):
         pred_answer = parse_answer(pred_solutions)
         if pred_answer is None:
             pred_answer = solve_math_problems(pred_solutions)
+            if pred_answer is not None:
+                # Convert number to letter if necessary
+                try:
+                    pred_answer = number_to_letter(int(pred_answer))
+                except ValueError:
+                    pass  # Handle or log the error as appropriate
 
     if gt == pred_answer:
         return 1
