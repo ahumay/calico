@@ -4,6 +4,9 @@ import json
 import time
 import random
 import openai
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 def construct_message(agents, question, idx):
     if len(agents) == 0:
@@ -28,11 +31,14 @@ def construct_assistant_message(completion):
 
 def generate_answer(answer_context):
     try:
+        api_key = os.getenv('OPENAI_API_KEY')
         completion = openai.ChatCompletion.create(
                   model="gpt-3.5-turbo-0301",
                   messages=answer_context,
-                  n=1)
-    except:
+                  n=1,
+                  api_key=api_key)
+    except Exception as e:
+        print("Error:", e)
         print("retrying due to an error......")
         time.sleep(20)
         return generate_answer(answer_context)
