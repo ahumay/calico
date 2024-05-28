@@ -4,3 +4,5 @@ tqdm==4.64.1
 langchain
 langgraph
 langchain_openai
+langchain-community
+json5

@@ -4,6 +4,7 @@ import json
 import time
 import random
 import openai
+from agents.langgraph_agent import MasterAgent
 
 def construct_message(agents, question, idx):
     if len(agents) == 0:
@@ -27,11 +28,13 @@ def construct_assistant_message(completion):
 
 
 def generate_answer(answer_context):
+    master_agent = MasterAgent()
     try:
-        completion = openai.ChatCompletion.create(
-                  model="gpt-3.5-turbo-0301",
-                  messages=answer_context,
-                  n=1)
+        master_agent.run(answer_context)
+        # completion = openai.ChatCompletion.create(
+        #           model="gpt-3.5-turbo-0301",
+        #           messages=answer_context,
+        #           n=1)
     except:
         print("retrying due to an error......")
         time.sleep(20)
