@@ -29,7 +29,7 @@ def construct_assistant_message(completion):
 def generate_answer(answer_context):
     try:
         completion = openai.ChatCompletion.create(
-                  model="gpt-4o",
+                  model="gpt-3.5-turbo-0301",
                   messages=answer_context,
                   n=1)
     except:

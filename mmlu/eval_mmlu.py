@@ -4,45 +4,6 @@ import numpy as np
 import time
 import re
 
-def parse_bullets(sentence):
-    bullets_preprocess = sentence.split("\n")
-    bullets = []
-
-    for bullet in bullets_preprocess:
-        try:
-            idx = bullet.find(next(filter(str.isalpha, bullet)))
-        except:
-            continue
-
-        bullet = bullet[idx:]
-
-        if len(bullet) != 0:
-            bullets.append(bullet)
-
-    return bullets
-
-
-def parse_yes_no(string):
-    """
-    Parses a string containing "yes" or "no" and returns a boolean value.
-
-    Args:
-        string (str): The string to parse.
-
-    Returns:
-        bool: True if the string contains "yes", False if the string contains "no".
-
-    Raises:
-        ValueError: If the input string does not contain "yes" or "no".
-    """
-    if "yes" in string.lower():
-        return True
-    elif "no" in string.lower():
-        return False
-    else:
-        return None
-
-
 def solve_math_problems(input_str):
     pattern = r"\d+\.?\d*"
 
@@ -111,7 +72,7 @@ def most_frequent(List):
     return num
 
 if __name__ == "__main__":
-    response_dict = json.load(open("mmlu_3_2.json", "r"))
+    response_dict = json.load(open("mmlu_1_1.json", "r"))
     questions = list(response_dict.keys())
 
     accuracies = []
