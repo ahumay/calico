@@ -4,6 +4,7 @@ import json
 import time
 import random
 import openai
+from agents.langgraph_agent import MasterAgent
 from dotenv import load_dotenv
 import os
 load_dotenv()
@@ -30,13 +31,15 @@ def construct_assistant_message(completion):
 
 
 def generate_answer(answer_context):
+    master_agent = MasterAgent()
     try:
-        api_key = os.getenv('OPENAI_API_KEY')
-        completion = openai.ChatCompletion.create(
-                  model="gpt-3.5-turbo-0301",
-                  messages=answer_context,
-                  n=1,
-                  api_key=api_key)
+        master_agent.run(answer_context)
+        # api_key = os.getenv('OPENAI_API_KEY')
+        # completion = openai.ChatCompletion.create(
+        #           model="gpt-3.5-turbo-0301",
+        #           messages=answer_context,
+        #           n=1,
+        #           api_key=api_key)
     except Exception as e:
         print("Error:", e)
         print("retrying due to an error......")
