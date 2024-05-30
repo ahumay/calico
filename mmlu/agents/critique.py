@@ -13,8 +13,7 @@ class CritiqueAgent:
                        f"Your colleague's answer was {article['answer']}"
                        f"The following \"\"\" delimiters contain the thought process: \"\"\"{article['thought_process']}\"\"\" "
                        f"The following --- delimiters contain their optional message to you: ---{article['message']}---"
-                       f"return None if you disagree with the answer.\n"
-                       f"Please return a string of your critique or None.\n"
+                       f"return ONLY the word 'None' if you agree with the answer.\n"
         }]
 
         lc_messages = convert_openai_messages(prompt)

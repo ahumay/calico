@@ -6,6 +6,5 @@ class ConcluderAgent:
         pass
 
     def run(self, article: dict):
-        print(f"DEBUG: matches at concluder: {article['matches']}")
-        # article = self.designer(article)
+        # TODO: Can be expanded 
         return article

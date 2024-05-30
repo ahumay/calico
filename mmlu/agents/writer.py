@@ -23,7 +23,6 @@ class WriterAgent:
                        f"Please return nothing but a JSON in the following format:\n"
                        f"{sample_json}\n "
         }]
-        print(f"DEBUG: First answer")
         lc_messages = convert_openai_messages(prompt)
         # WHEN CHANGING MODEL from gpt-3.5-turbo-0301, can add this back in:
         # optional_params = {
@@ -41,7 +40,7 @@ class WriterAgent:
             "role": "system",
             "content": f"You're a savant at the Institute for Advanced Study. You and a colleague have been tasked to answer this question correctly, or else the world will blow up. You gave an answer, and your colleague has given feedback below, separated by \"\"\" delimiters."
                        f"\"\"\"{article['critique']}\"\"\"\""
-                       f"Please return nothing but a JSON in the following format:\n"
+                       f"Please either update the answer or reasoning and return nothing but a JSON in the following format:\n"
                        f"{sample_json}\n "
         }]
 

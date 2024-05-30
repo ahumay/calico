@@ -43,5 +43,7 @@ class MasterAgent:
         # compile the graph
         chain = workflow.compile()
         mmlu_question = answer_context[0]["content"]
-        print("Running the Langchain graph with question: {}".format(mmlu_question))
-        chain.invoke({"question": mmlu_question})
+        # print("Running the Langchain graph with question: {}".format(mmlu_question))
+        result = chain.invoke({"question": mmlu_question})
+        print("End of Langchain result: ", result)
+        return result
