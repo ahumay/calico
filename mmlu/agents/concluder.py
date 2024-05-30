@@ -7,4 +7,5 @@ class ConcluderAgent:
 
     def run(self, article: dict):
         # TODO: Can be expanded 
+        # print("DEBUG: Concluder: ", article)
         return article

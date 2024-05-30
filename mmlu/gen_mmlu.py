@@ -21,25 +21,28 @@ def construct_message(agents, question, idx):
 
         prefix_string = prefix_string + response
 
-    prefix_string = prefix_string + """\n\n Using the reasoning from other agents as additional advice, can you give an updated answer? Examine your solution and that other agents step by step. Put your answer in the form (X) at the end of your response.""".format(question)
+    prefix_string = prefix_string + """\n\n Using the reasoning from other agents as additional advice, can you give an updated answer? Examine your solution and that other agents step by step. Put your answer in the form (A) at the end of your response.""".format(question)
     return {"role": "user", "content": prefix_string}
 
 
 def construct_assistant_message(completion):
-    content = completion["thought_process"] + " " + completion["answer"]
-    return {"role": "assistant", "content": content}
+    print("DEBUG: Constructing assistant message. Debate: ", completion["answer_rationale"])
+    try:
+        if completion["answer_rationale"] is None:
+            answer_rationale_str = ""
+        else:
+            answer_rationale_str = " ".join([str(item) for item in completion["answer_rationale"] if item is not None])
+        content = answer_rationale_str + " " + completion["answer"]
+        return {"role": "assistant", "content": content}
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return e
 
 
 def generate_answer(answer_context):
     master_agent = MasterAgent()
     try:
         completion = master_agent.run(answer_context)
-        # api_key = os.getenv('OPENAI_API_KEY')
-        # completion = openai.ChatCompletion.create(
-        #           model="gpt-3.5-turbo-0301",
-        #           messages=answer_context,
-        #           n=1,
-        #           api_key=api_key)
     except Exception as e:
         print("Error:", e)
         print("retrying due to an error......")
@@ -56,7 +59,7 @@ def parse_question_answer(df, ix):
     c = df.iloc[ix, 3]
     d = df.iloc[ix, 4]
 
-    question = "Can you answer the following question as accurately as possible? {}: A) {}, B) {}, C) {}, D) {} Explain your answer, putting the answer in the form (X) at the end of your response.".format(question, a, b, c, d)
+    question = "Can you answer the following question as accurately as possible? {}: A) {}, B) {}, C) {}, D) {} \nExplain your answer, putting the answer in the form (X) at the end of your response.".format(question, a, b, c, d)
 
     answer = df.iloc[ix, 5]
 
@@ -73,11 +76,11 @@ if __name__ == "__main__":
     random.seed(0)
     response_dict = {}
 
-    for i in range(100):
+    for i in range(50):
         df = random.choice(dfs)
         ix = len(df)
         idx = random.randint(0, ix-1)
-
+        print("-------- Starting new question: ", i)
         question, answer = parse_question_answer(df, idx)
 
         agent_contexts = [[{"role": "user", "content": question}] for agent in range(agents)]
@@ -94,7 +97,7 @@ if __name__ == "__main__":
 
                 assistant_message = construct_assistant_message(completion)
                 agent_context.append(assistant_message)
-                print(completion)
+                # print(completion)
 
         response_dict[question] = (agent_contexts, answer)
 

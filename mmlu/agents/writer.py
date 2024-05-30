@@ -5,9 +5,9 @@ import json5 as json
 
 sample_json = """
 {
-    "thought_process": What you know about the problem, and how you arrived at your answer
+    "debate": Panel debate as a single string, with each expert giving their reasoning,
+    "answer_rationale": A single string containing the final answer chosen by the panel with a step-by-step explanation,
     "answer": A single letter corresponding to the final answer
-    "message": "Optional message to your counterpart Professor"
 }
 """
 
@@ -19,8 +19,9 @@ class WriterAgent:
 
         prompt = [{
             "role": "system",
-            "content": f"You're a savant at the Institute for Advanced Study. You and a colleague have been tasked to answer this question correctly, or else the world will blow up: \"\"\"{question}\"\"\"\n "
-                       f"Please return nothing but a JSON in the following format:\n"
+            "content": f"\"\"\"{question}\"\"\"\n "
+                       f"3 experts on a panel are discussing the question with a discussion, trying to solve it step by step, and make sure the result is correct."
+                       f"Please only a JSON in the following format:\n"
                        f"{sample_json}\n "
         }]
         lc_messages = convert_openai_messages(prompt)
@@ -38,9 +39,10 @@ class WriterAgent:
     def revise(self, article: dict):
         prompt = [{
             "role": "system",
-            "content": f"You're a savant at the Institute for Advanced Study. You and a colleague have been tasked to answer this question correctly, or else the world will blow up. You gave an answer, and your colleague has given feedback below, separated by \"\"\" delimiters."
+            "content": f"\"\"\"{article['question']}\"\"\"\n "
+                       f"3 experts on a panel are discussing the question. They previously chose {article['answer']}, but the following critique enclosed in the \"\"\" delimiters from another panel came in:"
                        f"\"\"\"{article['critique']}\"\"\"\""
-                       f"Please either update the answer or reasoning and return nothing but a JSON in the following format:\n"
+                       f"You can now update the answer if you think the critique is valid. Return only a JSON in the following format:\n"
                        f"{sample_json}\n "
         }]
 
@@ -56,7 +58,7 @@ class WriterAgent:
             print(f"An error occurred: {e}")
 
         response = json.loads(response)
-        print(f"DEBUG: Revising")
+        # print(f"DEBUG: Revising")
         return response
 
     def run(self, article: dict):

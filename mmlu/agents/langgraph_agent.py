@@ -45,5 +45,5 @@ class MasterAgent:
         mmlu_question = answer_context[0]["content"]
         # print("Running the Langchain graph with question: {}".format(mmlu_question))
         result = chain.invoke({"question": mmlu_question})
-        print("End of Langchain result: ", result)
+        # print("End of Langchain result: ", result)
         return result
