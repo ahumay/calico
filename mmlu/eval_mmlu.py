@@ -18,24 +18,19 @@ def number_to_letter(number):
     return chr(ord('A') + number - 1)
 
 def parse_answer(input_str):
-    pattern = r'\((\w)\)'
-    matches = re.findall(pattern, input_str)
-
-    solution = None
-    # print("predicted solution")
-    # print(input_str)
-    # print("matches")
-    # print(matches)
-
-    for match_str in matches[::-1]:
-        solution = match_str.upper()
-        if solution:
-            break
-
-    return solution
+    # Filter out non-letter characters
+    filtered_string = ''.join(filter(str.isalpha, input_str))
+    
+    # Find the last uppercase letter
+    for char in reversed(filtered_string):
+        if char.isupper():
+            return char
+    return None
 
 
 def compute_accuracy(gt, pred_solutions):
+    print("gt:", gt)
+    print("pred_solutions:", pred_solutions)
     if type(pred_solutions) == list:
         pred_answers = []
 
@@ -43,6 +38,7 @@ def compute_accuracy(gt, pred_solutions):
             pred_answer = parse_answer(pred_solution)
 
             if pred_answer is None:
+                print("didn't find answer in: ", pred_solutions)
                 pred_answer = solve_math_problems(pred_solution)
                 if pred_answer is not None:
                     # Convert number to letter if necessary
@@ -61,6 +57,7 @@ def compute_accuracy(gt, pred_solutions):
     else:
         pred_answer = parse_answer(pred_solutions)
         if pred_answer is None:
+            print("didn't find answer in: ", pred_solutions)
             pred_answer = solve_math_problems(pred_solutions)
             if pred_answer is not None:
                 # Convert number to letter if necessary
@@ -88,7 +85,7 @@ def most_frequent(List):
     return num
 
 if __name__ == "__main__":
-    response_dict = json.load(open("mmlu_3_2.json", "r"))
+    response_dict = json.load(open("mmlu_3_1.json", "r"))
     questions = list(response_dict.keys())
 
     accuracies = []

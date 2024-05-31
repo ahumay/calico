@@ -67,7 +67,7 @@ def parse_question_answer(df, ix):
 
 if __name__ == "__main__":
     agents = 3
-    rounds = 2
+    rounds = 1
 
     tasks = glob("./data/test/*.csv")
 
@@ -76,11 +76,11 @@ if __name__ == "__main__":
     random.seed(0)
     response_dict = {}
 
-    for i in range(50):
+    for i in range(100):
         df = random.choice(dfs)
         ix = len(df)
         idx = random.randint(0, ix-1)
-        print("-------- Starting new question: ", i)
+        print("----------- Starting new question: ", i)
         question, answer = parse_question_answer(df, idx)
 
         agent_contexts = [[{"role": "user", "content": question}] for agent in range(agents)]
