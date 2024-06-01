@@ -26,23 +26,25 @@ def construct_message(agents, question, idx):
 
 
 def construct_assistant_message(completion):
-    content = completion["thought_process"] + " " + completion["answer"]
+    # Langraph:
+    # content = completion["thought_process"] + " " + completion["answer"]
+    # Raw GPT:
+    content = completion["choices"][0]["message"]["content"]
     return {"role": "assistant", "content": content}
 
 
 def generate_answer(answer_context):
     master_agent = MasterAgent()
     try:
-        completion = master_agent.run(answer_context)
-        # api_key = os.getenv('OPENAI_API_KEY')
-        # completion = openai.ChatCompletion.create(
-        #           model="gpt-3.5-turbo-0301",
-        #           messages=answer_context,
-        #           n=1,
-        #           api_key=api_key)
+        # Langraph:
+        # completion = master_agent.run(answer_context)
+        # Raw GPT: 
+        completion = openai.ChatCompletion.create(
+                  model="gpt-3.5-turbo-0301",
+                  messages=answer_context,
+                  n=1)
     except Exception as e:
         print("Error:", e)
-        print("retrying due to an error......")
         time.sleep(1)
         return generate_answer(answer_context)
 
