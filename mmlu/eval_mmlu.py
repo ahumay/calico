@@ -1,8 +1,6 @@
 import json
-import openai
-import numpy as np
-import time
 import re
+import numpy as np
 
 def solve_math_problems(input_str):
     pattern = r"\d+\.?\d*"
@@ -34,7 +32,6 @@ def parse_answer(input_str):
 
     return solution
 
-
 def compute_accuracy(gt, pred_solutions):
     if type(pred_solutions) == list:
         pred_answers = []
@@ -54,8 +51,8 @@ def compute_accuracy(gt, pred_solutions):
             if pred_answer is not None:
                 pred_answers.append(pred_answer)
 
-        if pred_answer is None:
-            return 0
+        if not pred_answers:
+            return 0, pred_solutions
         pred_answer = most_frequent(pred_answers)
         # pred_answer = pred_answers[0]
     else:
@@ -70,10 +67,9 @@ def compute_accuracy(gt, pred_solutions):
             #         pass  # Handle or log the error as appropriate
 
     if gt == pred_answer:
-        return 1
+        return 1, pred_solutions
     else:
-        return 0
-
+        return 0, pred_solutions
 
 def most_frequent(List):
     counter = 0
@@ -88,7 +84,7 @@ def most_frequent(List):
     return num
 
 if __name__ == "__main__":
-    response_dict = json.load(open("mmlu_3_2.json", "r"))
+    response_dict = json.load(open("mmlu_1_1.json", "r"))
     questions = list(response_dict.keys())
 
     accuracies = []
@@ -99,14 +95,12 @@ if __name__ == "__main__":
         pred_solutions = []
         for response in responses:
             pred_solution = response[-1]['content']
-
             pred_solutions.append(pred_solution)
-            # break
 
-        # pred_solutions = pred_solutions[:1]
-
-        accurate = compute_accuracy(gt, pred_solutions)
-
+        accurate, pred_solutions = compute_accuracy(gt, pred_solutions)
+        if accurate == 0:
+            for pred_solution in pred_solutions:
+                print(f"Expected: {gt}, but got: {pred_solution}")
 
         if accurate is not None:
             accuracies.append(float(accurate))
