@@ -9,6 +9,10 @@ from dotenv import load_dotenv
 import os
 import dspy
 from dspy.predict import aggregation
+from dspy.predict import Predict
+from dspy.primitives.program import Module
+from dspy_modules.multi_chain import MultiChainComparison, BasicQA
+import dsp
 load_dotenv()
 
 def construct_message(agents, question, idx):
@@ -46,12 +50,15 @@ def generate_answer(answer_context):
         #           model="gpt-3.5-turbo-0301",
         #           messages=answer_context,
         #           n=1)
-        # DSPy:
+        # DSPy with multi-chain:
         completions = []
         qa = dspy.ChainOfThought('question -> answer')
         for idx in range(5):
             completions.append(qa(question=answer_context[0]["content"], config=dict(temperature=0.7+0.0001*idx)))
-        completion = aggregation.majority(completions)
+        compare_answers = dspy.MultiChainComparison(BasicQA, 5)
+        completion = compare_answers(completions, question=answer_context[0]["content"])
+        # print(f"Final Predicted Answer (after comparison): {completion.answer}")
+
     except Exception as e:
         print("Error in generate_answer:", e)
         time.sleep(1)
@@ -76,7 +83,7 @@ def parse_question_answer(df, ix):
 if __name__ == "__main__":
     # DSPy:
     api_key = os.getenv('OPENAI_API_KEY')
-    llm = dspy.OpenAI(model='gpt-4o', api_key=api_key, max_tokens = 2048)
+    llm = dspy.OpenAI(model='gpt-4o', api_key=api_key, max_tokens = 1024)
     dspy.settings.configure(lm=llm)
 
     agents = 1
