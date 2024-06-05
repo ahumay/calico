@@ -13,18 +13,18 @@ load_dotenv()
 
 def construct_message(agents, question, idx):
     if len(agents) == 0:
-        return {"role": "user", "content": "Can you double check that your answer is correct. Put your final answer in the form of it's corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response."}
+        return {"content": "Can you double check that your answer is correct. Put your final answer in the form of it's corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response."}
 
     prefix_string = "These are the solutions to the problem from other agents: "
 
     for agent in agents:
         agent_response = agent[idx]["content"]
-        response = "\n\n One agent solution: ```{}```".format(agent_response)
+        response = "\n\n Agent {} solution: ```{}```".format(idx, agent_response)
 
         prefix_string = prefix_string + response
 
     prefix_string = prefix_string + """\n\nUsing the reasoning from other agents as additional advice, can you give an updated answer? Examine your solution and that other agents step by step. Put your final answer in the form of it's corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response.""".format(question)
-    return {"role": "user", "content": prefix_string}
+    return {"content": prefix_string}
 
 
 def construct_assistant_message(completion):
@@ -34,7 +34,7 @@ def construct_assistant_message(completion):
     # content = completion["choices"][0]["message"]["content"]
     # DSPy: needs to update content to completion.answer (or completion.rationale + completion.answer):
     content = completion.answer
-    return {"role": "assistant", "content": content}
+    return {"content": content}
 
 def generate_answer(answer_context):
     master_agent = MasterAgent()
@@ -48,9 +48,10 @@ def generate_answer(answer_context):
         #           n=1)
         # DSPy:
         completions = []
+        print("Answer context:", answer_context)
         qa = dspy.ChainOfThought('question -> answer')
         for idx in range(5):
-            completions.append(qa(question=answer_context[0]["content"], config=dict(temperature=0.7+0.0001*idx)))
+            completions.append(qa(question=answer_context[0]["content"], config=dict(temperature=0.5+random.uniform(0.0, 0.5))))
         completion = aggregation.majority(completions)
     except Exception as e:
         print("Error in generate_answer:", e)
@@ -79,8 +80,8 @@ if __name__ == "__main__":
     llm = dspy.OpenAI(model='gpt-4o', api_key=api_key, max_tokens = 2048)
     dspy.settings.configure(lm=llm)
 
-    agents = 1
-    rounds = 1
+    agents = 3
+    rounds = 2
 
     tasks = glob("./data/test/*.csv")
 
@@ -96,7 +97,7 @@ if __name__ == "__main__":
 
         question, answer = parse_question_answer(df, idx)
 
-        agent_contexts = [[{"role": "user", "content": question}] for agent in range(agents)]
+        agent_contexts = [[{"content": question}] for agent in range(agents)]
 
         for round in range(rounds):
             for i, agent_context in enumerate(agent_contexts):
@@ -110,8 +111,7 @@ if __name__ == "__main__":
 
                 assistant_message = construct_assistant_message(completion)
                 agent_context.append(assistant_message)
-                print(completion)
-
+        print("------------------------------------------ Final answer:    ", answer)
         response_dict[question] = (agent_contexts, answer)
 
     json.dump(response_dict, open("mmlu_{}_{}.json".format(agents, rounds), "w"))
