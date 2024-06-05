@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
         pred_solutions = []
         for response in responses:
-            pred_solution = response[-1]['content']
+            pred_solution = response[-1]
             pred_solutions.append(pred_solution)
 
         accurate, pred_solutions = compute_accuracy(gt, pred_solutions)
