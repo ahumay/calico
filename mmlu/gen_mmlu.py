@@ -7,11 +7,13 @@ import openai
 from agents.langgraph_agent import MasterAgent
 from dotenv import load_dotenv
 import os
+import dspy
+from dspy.predict import aggregation
 load_dotenv()
 
 def construct_message(agents, question, idx):
     if len(agents) == 0:
-        return {"role": "user", "content": "Can you double check that your answer is correct. Put your final answer in the form (X) at the end of your response."}
+        return {"role": "user", "content": "Can you double check that your answer is correct. Put your final answer in the form of it's corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response."}
 
     prefix_string = "These are the solutions to the problem from other agents: "
 
@@ -21,7 +23,7 @@ def construct_message(agents, question, idx):
 
         prefix_string = prefix_string + response
 
-    prefix_string = prefix_string + """\n\n Using the reasoning from other agents as additional advice, can you give an updated answer? Examine your solution and that other agents step by step. Put your answer in the form (X) at the end of your response.""".format(question)
+    prefix_string = prefix_string + """\n\nUsing the reasoning from other agents as additional advice, can you give an updated answer? Examine your solution and that other agents step by step. Put your final answer in the form of it's corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response.""".format(question)
     return {"role": "user", "content": prefix_string}
 
 
@@ -29,9 +31,10 @@ def construct_assistant_message(completion):
     # Langraph:
     # content = completion["thought_process"] + " " + completion["answer"]
     # Raw GPT:
-    content = completion["choices"][0]["message"]["content"]
+    # content = completion["choices"][0]["message"]["content"]
+    # DSPy: needs to update content to completion.answer (or completion.rationale + completion.answer):
+    content = completion.answer
     return {"role": "assistant", "content": content}
-
 
 def generate_answer(answer_context):
     master_agent = MasterAgent()
@@ -39,12 +42,18 @@ def generate_answer(answer_context):
         # Langraph:
         # completion = master_agent.run(answer_context)
         # Raw GPT: 
-        completion = openai.ChatCompletion.create(
-                  model="gpt-3.5-turbo-0301",
-                  messages=answer_context,
-                  n=1)
+        # completion = openai.ChatCompletion.create(
+        #           model="gpt-3.5-turbo-0301",
+        #           messages=answer_context,
+        #           n=1)
+        # DSPy:
+        completions = []
+        qa = dspy.ChainOfThought('question -> answer')
+        for idx in range(5):
+            completions.append(qa(question=answer_context[0]["content"], config=dict(temperature=0.7+0.0001*idx)))
+        completion = aggregation.majority(completions)
     except Exception as e:
-        print("Error:", e)
+        print("Error in generate_answer:", e)
         time.sleep(1)
         return generate_answer(answer_context)
 
@@ -58,15 +67,20 @@ def parse_question_answer(df, ix):
     c = df.iloc[ix, 3]
     d = df.iloc[ix, 4]
 
-    question = "Can you answer the following question as accurately as possible? {}: A) {}, B) {}, C) {}, D) {} Explain your answer, putting the answer in the form (X) at the end of your response.".format(question, a, b, c, d)
+    question = "Can you answer the following question as accurately as possible? {}: A) {}, B) {}, C) {}, D) {}. Explain your answer, putting your final answer in the form of it's corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response".format(question, a, b, c, d)
 
     answer = df.iloc[ix, 5]
 
     return question, answer
 
 if __name__ == "__main__":
-    agents = 3
-    rounds = 2
+    # DSPy:
+    api_key = os.getenv('OPENAI_API_KEY')
+    llm = dspy.OpenAI(model='gpt-4o', api_key=api_key, max_tokens = 2048)
+    dspy.settings.configure(lm=llm)
+
+    agents = 1
+    rounds = 1
 
     tasks = glob("./data/test/*.csv")
 
