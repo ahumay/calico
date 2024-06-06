@@ -98,18 +98,18 @@ if __name__ == "__main__":
 
     accuracies = []
 
-    for question in questions:
+    for i, question in enumerate(questions):
         responses, gt = response_dict[question]
 
         pred_solutions = []
         for response in responses:
-            pred_solution = response[-1]['content']
+            pred_solution = response[-1]
             pred_solutions.append(pred_solution)
 
         accurate, pred_solutions = compute_accuracy(gt, pred_solutions)
         if accurate == 0:
             for pred_solution in pred_solutions:
-                print(f"Expected: {gt}, but got: {pred_solution}")
+                print(f"\n********************************************************************************\n******************** Question {i + 1}: {question} ******************** Expected: {gt}, but got:\n\n {pred_solution}")
 
         if accurate is not None:
             accuracies.append(float(accurate))
@@ -118,4 +118,4 @@ if __name__ == "__main__":
             pdb.set_trace()
             print(gt)
 
-        print("accuracies:", np.mean(accuracies), np.std(accuracies) / (len(accuracies) ** 0.5))
+        # print("accuracies:", np.mean(accuracies), np.std(accuracies) / (len(accuracies) ** 0.5))
