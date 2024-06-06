@@ -23,7 +23,7 @@ def construct_message(agents, question, idx):
 
         prefix_string = prefix_string + response
 
-    prefix_string = prefix_string + """\nUsing the reasoning from other agents as advice, can you give an updated answer? Examine your solution and that other agents step by step. Put your final answer in the form of its corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response.""".format(question)
+    prefix_string = prefix_string + """\nUsing the reasoning from other agents as advice, can you give an updated answer? Put your final answer in the form of its corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response.""".format(question)
     return prefix_string
 
 
@@ -68,7 +68,7 @@ def parse_question_answer(df, ix):
     c = df.iloc[ix, 3]
     d = df.iloc[ix, 4]
 
-    question = "Can you answer the following question as accurately as possible? ```{}: A) {}, B) {}, C) {}, D) {}```. Explain your answer, putting your final answer in the form of it's corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response".format(question, a, b, c, d)
+    question = "Can you answer the following question as accurately as possible? ```{}: A) {}, B) {}, C) {}, D) {}```. Put your final answer in the form of it's corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response".format(question, a, b, c, d)
 
     answer = df.iloc[ix, 5]
 
@@ -80,8 +80,8 @@ if __name__ == "__main__":
     llm = dspy.OpenAI(model='gpt-4o', api_key=api_key, max_tokens = 2048)
     dspy.settings.configure(lm=llm)
 
-    agents = 3
-    rounds = 2
+    agents = 5
+    rounds = 3
 
     tasks = glob("./data/test/*.csv")
 
