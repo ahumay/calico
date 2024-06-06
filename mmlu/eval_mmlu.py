@@ -84,12 +84,12 @@ def most_frequent(List):
     return num
 
 if __name__ == "__main__":
-    response_dict = json.load(open("mmlu_3_2.json", "r"))
+    response_dict = json.load(open("mmlu_3_2_debate+dspy_temp0.5to1_gpt4o.json", "r"))
     questions = list(response_dict.keys())
 
     accuracies = []
 
-    for question in questions:
+    for i, question in enumerate(questions):
         responses, gt = response_dict[question]
 
         pred_solutions = []
@@ -100,7 +100,7 @@ if __name__ == "__main__":
         accurate, pred_solutions = compute_accuracy(gt, pred_solutions)
         if accurate == 0:
             for pred_solution in pred_solutions:
-                print(f"Expected: {gt}, but got: {pred_solution}")
+                print(f"\n********************************************************************************\n******************** Question {i + 1}: {question} ******************** Expected: {gt}, but got:\n\n {pred_solution}")
 
         if accurate is not None:
             accuracies.append(float(accurate))
@@ -109,4 +109,4 @@ if __name__ == "__main__":
             pdb.set_trace()
             print(gt)
 
-        print("accuracies:", np.mean(accuracies), np.std(accuracies) / (len(accuracies) ** 0.5))
+        # print("accuracies:", np.mean(accuracies), np.std(accuracies) / (len(accuracies) ** 0.5))

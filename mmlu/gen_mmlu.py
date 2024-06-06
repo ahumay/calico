@@ -23,7 +23,7 @@ def construct_message(agents, question, idx):
 
         prefix_string = prefix_string + response
 
-    prefix_string = prefix_string + """\nUsing the reasoning from other agents as additional advice, can you give an updated answer? Examine your solution and that other agents step by step. Put your final answer in the form of its corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response.""".format(question)
+    prefix_string = prefix_string + """\nUsing the reasoning from other agents as advice, can you give an updated answer? Examine your solution and that other agents step by step. Put your final answer in the form of its corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response.""".format(question)
     return prefix_string
 
 
@@ -51,9 +51,9 @@ def generate_answer(answer_context):
         print("Answer context:", answer_context)
         qa = dspy.ChainOfThought('question -> answer')
         for idx in range(5):
-            completions.append(qa(question=answer_context, config=dict(temperature=0.5+random.uniform(0.0, 0.5))))
+            completions.append(qa(question=answer_context, config=dict(temperature=0.0+random.uniform(0.0, 1.1))))
         completion = aggregation.majority(completions)
-        # print("Completion:", completion)
+        print("Completion:", completion)
     except Exception as e:
         print("Error in generate_answer:", e)
         time.sleep(1)
@@ -68,7 +68,7 @@ def parse_question_answer(df, ix):
     c = df.iloc[ix, 3]
     d = df.iloc[ix, 4]
 
-    question = "Can you answer the following question in ``` delimiters as accurately as possible? ```{}: A) {}, B) {}, C) {}, D) {}```. Explain your answer, putting your final answer in the form of it's corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response".format(question, a, b, c, d)
+    question = "Can you answer the following question as accurately as possible? ```{}: A) {}, B) {}, C) {}, D) {}```. Explain your answer, putting your final answer in the form of it's corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response".format(question, a, b, c, d)
 
     answer = df.iloc[ix, 5]
 
@@ -106,13 +106,13 @@ if __name__ == "__main__":
                 if round != 0:
                     agent_contexts_other = agent_contexts[:i] + agent_contexts[i+1:]
                     message = construct_message(agent_contexts_other, question, 2 * round - 1)
-                    question = og_question + "\n" + message
+                    question = message
 
                 completion = generate_answer(question)
 
                 assistant_message = construct_assistant_message(completion)
                 agent_context.append(assistant_message)
-        print("------------------------------------------ Final answer:    ", answer)
-        response_dict[question] = (agent_contexts, answer)
+                print("------------------------------------------ One of final answer:    ", assistant_message)
+        response_dict[og_question] = (agent_contexts, answer)
 
     json.dump(response_dict, open("mmlu_{}_{}.json".format(agents, rounds), "w"))
