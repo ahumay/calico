@@ -51,7 +51,7 @@ def generate_answer(answer_context):
         print("Answer context:", answer_context)
         qa = dspy.ChainOfThought('question -> answer')
         for idx in range(5):
-            completions.append(qa(question=answer_context, config=dict(temperature=0.0+random.uniform(0.0, 1.1))))
+            completions.append(qa(question=answer_context, config=dict(temperature=0.0+random.uniform(0.0, 1.0))))
         completion = aggregation.majority(completions)
         print("Completion:", completion)
     except Exception as e:
@@ -98,14 +98,14 @@ if __name__ == "__main__":
         question, answer = parse_question_answer(df, idx)
         og_question = question
 
-        agent_contexts = [[{"content": question}] for agent in range(agents)]
+        agent_contexts = [[question] for agent in range(agents)]
 
         for round in range(rounds):
             for i, agent_context in enumerate(agent_contexts):
 
                 if round != 0:
                     agent_contexts_other = agent_contexts[:i] + agent_contexts[i+1:]
-                    message = construct_message(agent_contexts_other, question, 2 * round - 1)
+                    message = construct_message(agent_contexts_other, question, round - 1)
                     question = message
 
                 completion = generate_answer(question)
