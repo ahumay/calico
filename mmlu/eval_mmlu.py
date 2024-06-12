@@ -118,4 +118,4 @@ if __name__ == "__main__":
             pdb.set_trace()
             print(gt)
 
-        # print("accuracies:", np.mean(accuracies), np.std(accuracies) / (len(accuracies) ** 0.5))
+        print("accuracies:", np.mean(accuracies), np.std(accuracies) / (len(accuracies) ** 0.5))

@@ -11,6 +11,15 @@ import dspy
 from dspy.predict import aggregation
 load_dotenv()
 
+# Set up DSPy with OpenAI and ColBERTv2 for multi-hop retrieval
+api_key = os.getenv('OPENAI_API_KEY')
+turbo = dspy.OpenAI(model='gpt-3.5-turbo', )
+
+
+
+
+
+
 def construct_message(agents, question, idx):
     if len(agents) == 0:
         return "Can you double check that your answer is correct. Put your final answer in the form of its corresponding capitalized letter choice such as (i.e. '(A)') as the last text in your response."
