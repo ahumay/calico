@@ -93,7 +93,7 @@ def most_frequent(List):
     return num
 
 if __name__ == "__main__":
-    response_dict = json.load(open("mmlu_3_2_debate+dspy_temp0.5to1_gpt4o.json", "r"))
+    response_dict = json.load(open("mmlu_5_3.json", "r"))
     questions = list(response_dict.keys())
 
     accuracies = []
