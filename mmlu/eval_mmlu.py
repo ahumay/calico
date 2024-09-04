@@ -16,24 +16,31 @@ def number_to_letter(number):
     return chr(ord('A') + number - 1)
 
 def parse_answer(input_str):
-    pattern = r'\((\w)\)'
-    matches = re.findall(pattern, input_str)
+    pattern = r'\((\w)\)\s*$'
+    match = re.search(pattern, input_str.strip())
 
-    solution = None
-    # print("predicted solution")
-    # print(input_str)
-    # print("matches")
-    # print(matches)
+    if match:
+        print(f"Matched: {match.group(1)}")
+        return match.group(1).upper()
+    
+    print(f"No match in: {input_str}")
+    return None
+    # # print("predicted solution")
+    # # print(input_str)
+    # # print("matches")
+    # # print(matches)
 
-    for match_str in matches[::-1]:
-        solution = match_str.upper()
-        if solution:
-            break
+    # for match_str in matches[::-1]:
+    #     solution = match_str.upper()
+    #     if solution:
+    #         break
 
-    return solution
+    # return solution
 
 def compute_accuracy(gt, pred_solutions):
-    if type(pred_solutions) == list:
+    print(f"\nGround Truth: {gt}")
+    print(f"Predicted Solutions: {pred_solutions}")
+    if isinstance(pred_solutions, list):
         pred_answers = []
 
         for pred_solution in pred_solutions:
@@ -66,6 +73,8 @@ def compute_accuracy(gt, pred_solutions):
             #     except ValueError:
             #         pass  # Handle or log the error as appropriate
 
+    print(f"Final Predicted Answer: {pred_answer}")
+    
     if gt == pred_answer:
         return 1, pred_solutions
     else:
@@ -84,23 +93,23 @@ def most_frequent(List):
     return num
 
 if __name__ == "__main__":
-    response_dict = json.load(open("mmlu_1_1.json", "r"))
+    response_dict = json.load(open("mmlu_5_3.json", "r"))
     questions = list(response_dict.keys())
 
     accuracies = []
 
-    for question in questions:
+    for i, question in enumerate(questions):
         responses, gt = response_dict[question]
 
         pred_solutions = []
         for response in responses:
-            pred_solution = response[-1]['content']
+            pred_solution = response[-1]
             pred_solutions.append(pred_solution)
 
         accurate, pred_solutions = compute_accuracy(gt, pred_solutions)
         if accurate == 0:
             for pred_solution in pred_solutions:
-                print(f"Expected: {gt}, but got: {pred_solution}")
+                print(f"\n********************************************************************************\n******************** Question {i + 1}: {question} ******************** Expected: {gt}, but got:\n\n {pred_solution}")
 
         if accurate is not None:
             accuracies.append(float(accurate))
